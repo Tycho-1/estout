@@ -7,7 +7,8 @@
 esttab(t.value = FALSE, p.value = FALSE, round.dec = 3, caption = NULL, 
 label = NULL, sig.levels = c(0.1, 0.05, 0.01), sig.sym=c("*","**","***"),
 filename="estout", csv=FALSE, sweave=FALSE, dcolumn=NULL, table="table", 
-table.pos="htbp", caption.top=FALSE, booktabs=FALSE)
+table.pos="htbp", caption.top=FALSE, booktabs=FALSE,
+var.order=NULL, sub.sections=NULL,var.rename=NULL)
 }
 \arguments{
 \item{t.value}{if set to TRUE the table will contain t-values instead of the default standard errors}
@@ -25,6 +26,9 @@ table.pos="htbp", caption.top=FALSE, booktabs=FALSE)
 \item{table.pos}{for setting positioning parameters for table. For table-types that don't require these parameters insert 'NULL'.}
 \item{caption.top}{if set to TRUE the caption will be inserted above the table.}
 \item{booktabs}{if set to TRUE the \\hline commands are replaced by there corresponding booktabs commands.}
+\item{var.order}{by default the order of variables is determined by there appearance in the models. Providing a vector of variables here in a different order will change the order of variables in the output table. Note that '(Intercept)' is enclosed in braces.}
+\item{sub.sections}{if one needs to subdivide the table in several sections using 'subtitles' this can be done here. Providing a vector of the form c(linenumber,"subtitle",2ndlinenumber,"2ndsubtitle") and so forth.}
+\item{var.rename}{vector of names to replace variable abbreviations of model with real names. The vector has to looks like this: var.rename=c("old.name1","new.name1","old.name2","new.name2") }
 }
 \seealso{ eststo, estclear }
 
