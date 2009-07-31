@@ -1,5 +1,5 @@
 Package: estout
-Version: 0.5-1
+Version: 0.6-1
 Date: 2009-07-31
 Title: Estimates Output
 Author: Felix Kaminsky <fkamins@uni-goettingen.de>, inspired by the
@@ -10,9 +10,11 @@ Description: The function collection stores the estimates of several
         and std.err. below. The default output is LaTeX but output to
         CSV for later editing in a spreadsheet tool is possible as
         well. It works for linear models (lm) and panel models from the
-        "plm"-package (plm).
+        "plm"-package (plm). The added "descsto" and "desctab" enable
+        you to export descriptive statistics of data-frames and single
+        variables to LaTeX and CSV.
 License: GPL-2
 URL: http://www.r-project.org, http://www.texnix.de
-Packaged: 2009-07-31 19:24:51 UTC; cataclysmic
+Packaged: 2009-08-08 12:46:16 UTC; cataclysmic
 Repository: CRAN
-Date/Publication: 2009-07-31 19:50:53
+Date/Publication: 2009-08-08 12:56:13

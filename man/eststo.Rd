@@ -2,11 +2,11 @@
 \alias{eststo}
 \title{Estimates Storage}
 \description{Function that stores the estimates, R squared, adjusted R squared, number of observations, standard errors, t- and p-values in the list object "ccl".}
-\usage{eststo(x,est_column)}
+\usage{eststo(x,est_column=NULL)}
 
 \arguments{
 \item{x}{R object containing an estimated model.}
-\item{est_column}{number of column to be used for the later table output. Can also be used to overwright an existing column with new data.}
+\item{est_column}{ is an optional argument to control in which position the model values are stored. By default however the model ist stored at the end of the list. It is important to not that additional variables, contained in further models, need to be place at the end or in the correct order. See the example below! (cigs,motheduc,faminc) }
 }
 
 \value{
@@ -30,9 +30,9 @@ b.cigs.motheduc.faminc <- lm(bwght ~ cigs + motheduc + faminc)
 
 
 
-eststo(b.cigs.motheduc,1)
-eststo(b.cigs.faminc,2)
-eststo(b.cigs.motheduc.faminc,3)
+eststo(b.cigs.motheduc)
+eststo(b.cigs.faminc)
+eststo(b.cigs.motheduc.faminc)
 }
 }
 \seealso{esttab, estclear}

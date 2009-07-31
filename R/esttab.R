@@ -45,8 +45,8 @@ for (j in 1:length(coeff_col_list)){
                }
         }
 }
-print(var_count) #control
-print(var_list)  #control
+#print(var_count) #control
+#print(var_list)  #control
 #########################################################################
 
 ######################## making a matrix  to be filled###################
@@ -110,7 +110,7 @@ for (j in 1:length(coeff_col_list)){
                         while(var_list[k] != coeff_col_list[[j]][[i]][[1]]){
                                 k <- k +1
                         }
-print(k)
+#print(k)
                         output_matrix[k*2,j+1] <- sigs #entry of coefficients
                         if(t.value == TRUE){
                                 output_matrix[k*2+1,j+1] <- t_val  #if set entry of t-values
@@ -130,13 +130,13 @@ print(k)
                 output_matrix[1,j+1] <- paste('&\\multicolumn{1}{c}{',coeff_col_list[[j]][[col_length]][[1]],"}",sep="") #dep.var
                 }
                 if(coeff_col_list[[j]][[col_length]][[length(coeff_col_list[[j]][[col_length]])]] == "lm"){     # checking if model is of lm class
-print("Model is of class 'lm'")
+#print("Model is of class 'lm'")
                 output_matrix[length(output_matrix[,j+1])-2,j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[2]],round.dec),sep="") # Rsquared
                 output_matrix[length(output_matrix[,j+1])-1,j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[3]],round.dec),sep="") # adj.Rsquared
                 output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[4]],round.dec),sep="") # N
                 }
                 if(coeff_col_list[[j]][[col_length]][[length(coeff_col_list[[j]][[col_length]])]] == "plm"){     # checking if model is of plm class
-print("Model is of class 'plm'")
+#print("Model is of class 'plm'")
                 output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[2]],round.dec),sep="") # N
                 }
                } # end for (j)
@@ -165,14 +165,10 @@ else{
 else{
 write(paste("\\begin{table}[t]\n\\centering\n\\def\\sym#1{\\ifmmode^{#1}\\else\\(^{#1}\\)\\fi}\n\\begin{tabular}{l*{",length(output_matrix[2,])-1,"}{c}}\n\\hline\\hline",sep=""),file=filename)
 for (j in 1:length(output_matrix[,1])){
-                write_line1 <- paste(output_matrix[j,],"\t\t",collapse="")
-                write_line <- paste(write_line1,"\\\\",sep="")
                 if(j == 1){
-                    nr_write1 <- paste("\t\t","&\\multicolumn{1}{c}{(",1:(length(output_matrix[1,])-1),")} ",collapse=" ")
-                    nr_write <- paste(nr_write1,"\\\\",sep="")
-                    write(nr_write,file=filename,append=TRUE)
+                    write(paste(paste("\t\t","&\\multicolumn{1}{c}{(",1:(length(output_matrix[1,])-1),")} ",collapse=" "),"\\\\",collapse=""),file=filename,append=TRUE)
                 }
-                write(write_line,file=filename,append=TRUE)
+                write(paste(paste(output_matrix[j,],"\t\t",collapse=""),"\\\\",collapse=""),file=filename,append=TRUE)
                 if(j == 1){
                     write("\\hline",file=filename,append=TRUE)
                 }
