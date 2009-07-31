@@ -2,11 +2,19 @@
 function(x,est_column){ # starting function "eststo"
 
 summary <- summary(x)
+class <- attributes(x)$class[[1]]
 coeff <- summary$coefficients
-vars <- variable.names(x) 
+vars <- attributes(summary$coeff)$dimnames[[1]] #variable.names(x) 
 col_length <- length(coeff)/4  # number of vars
 est_column # output table column
-dep_r_n <- c(x$call$formula[[2]],summary$r.squared,summary$adj.r,summary$df[[1]]+summary$df[[2]]) # name dep.var., R<U+00B2>, adj.R<U+00B2>, N
+if(length(summary$df) < 2){
+        degfree <- length(attributes(summary$model)$row.names)
+}
+if(length(summary$df) == 3){
+        degfree <- summary$df[[1]]+summary$df[[2]]
+}
+
+dep_r_n <- c(x$call$formula[[2]],summary$r.squared,summary$adj.r,degfree,class) # name dep.var., R.squared, adj.R.squared, N,model
 if(est_column != 1){coeff_col_list <<- ccl}
 
 #coeff # control-mech
