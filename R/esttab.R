@@ -1,5 +1,5 @@
 `esttab` <-
-function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename="estout",csv=FALSE,sweave=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE,var.order=NULL,sub.sections=NULL,var.rename=NULL){
+function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename=NULL,csv=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE,var.order=NULL,sub.sections=NULL,var.rename=NULL){
 
 # reading list from eststo
 model.coeff.list <<- ccl
@@ -210,7 +210,7 @@ for (j in 1:length(model.coeff.list)){
 				}
 			}
 		}
-print(is.null(var.rename)) #control ---------------!!!!!!!!!
+#print(is.null(var.rename)) #control ---------------!!!!!!!!!
 
 		#--------------------------------------------
 
@@ -225,7 +225,7 @@ print(is.null(var.rename)) #control ---------------!!!!!!!!!
 #print("Model is of class 'lm'")
     	           	output_matrix[length(output_matrix[,j+1])-2,j+1] <- paste(delimiter,round(model.coeff.list[[j]][[col_length]][[2]],round.dec),sep="") # Rsquared
         	    	output_matrix[length(output_matrix[,j+1])-1,j+1] <- paste(delimiter,round(model.coeff.list[[j]][[col_length]][[3]],round.dec),sep="") # adj.Rsquared
-                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[4]],"}",sep="") # N
+                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,if(! csv==TRUE){"\\multicolumn{1}{c}{"},model.coeff.list[[j]][[col_length]][[4]],if(! csv==TRUE){"}"},sep="") # N
                 }
                 if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "plm"){     # checking if model is of plm class
 #print("Model is of class 'plm'")
@@ -250,9 +250,14 @@ if(is.null(var.rename) == FALSE){
 #----------------------------------------------
 
 if(csv == TRUE ){
-	sink(save.file)
+	# begin sink to file if filename!=NULL
+	if(! is.null(filename)){
+		sink(save.file)
+	}
 	cat(caption)
-	cat(output_matrix)
+	for(i in 1:length(output_matrix[,1])){
+		cat(output_matrix[i,])
+	}
 	if(t.value==TRUE){
 	        cat("t-values in brackets")
 	}
@@ -260,14 +265,19 @@ if(csv == TRUE ){
 	        cat("p-values in brackets")
 	}
 	else{
-	        cat("Standard errors in parentheses")
+	        cat("Standard errors in parentheses\n")
 	}
-	sink()
+	# end sink
+	if(! is.null(filename)){
+		sink()
+	}
 }
 ### writing tex
 else{
 # begin sink
-	sink(save.file)
+	if(! is.null(filename)){
+		sink(save.file)
+	}
 # collate TeX formatted table
 	cat("\\def\\sym#1{\\ifmmode^{#1}\\else\\(^{#1}\\)\\fi}\n\\begin{",table,"}",table.pos, if(caption.top==TRUE){texcaption},"
 \\centering
@@ -303,19 +313,12 @@ else{
 	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize Standard errors in parentheses}\\\\\n",sep=""))
 	}
 	cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize $^{",sig.sym[1],"}$ (p $\\le$ ",sig.levels[1],"), $^{",sig.sym[2],"}$ (p $\\le$ ",sig.levels[2],"), $^{",sig.sym[3],"}$ (p $\\le$ ",sig.levels[3],")}\\\\
-\\end{tabular}\n",if(caption.top==FALSE){texcaption},label,"\\end{",table,"}",sep=""))
-	# end sink	
-	sink()
+\\end{tabular}\n",if(caption.top==FALSE){texcaption},label,"\\end{",table,"}\n",sep=""))
+	# end sink
+	if(! is.null(filename)){
+		sink()
+	}
 } 
 # end writing tex
-
-
-# If sweave is true then only echo \input{filename}
-if(sweave==TRUE){
-	cat("\\input{",filename,"}\n",sep="")
-}
-else{
-print(output_matrix) # console print-out
-}
 # esttab-end
 } 

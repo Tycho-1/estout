@@ -1,41 +1,63 @@
-`desctab` <- function(filename=NULL,caption=NULL,label=NULL,csv=FALSE){
+`desctab` <- function(filename=NULL,caption=NULL,label=NULL,csv=FALSE,dcolumn=NULL,booktabs=FALSE){
 ###
 # --- variable definition
 header <- c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max.","Missing Values")
 input_matrix <<- dcl
-if(is.null(filename)){
-        if(csv==TRUE){
-        filename <- "descout.csv"
-        }
-        else{
-        filename <- "descout.tex"
-        }
-}
-# --- function
 
+# --- dcolumn or center?
+if(is.null(dcolumn)){
+	dcolumn <- "c"
+}
+
+# --- booktabs == TRUE
+if(booktabs == TRUE){
+	toprule <- "\\toprule\n"
+	bottomrule <- "\\bottomrule\n"
+	midrule <- "\\midrule\n"
+}
+else{
+	toprule <- "\\hline\\hline\n"
+	midrule <- "\\hline\n"
+	bottomrule <- "\\hline\\hline\n"
+}
 
 # --- csv output
 if(csv == TRUE){
-        write(paste(",",header,collapse=""),file=filename)
+	if(! is.null(filename)){
+		filename <- paste(filename,".csv",sep="")
+		sink(filename)
+	}
+        if(! is.null(caption)){cat(caption,"\n",sep="")}  
+        cat(paste(",",header,collapse=""),"\n",sep="")
         for(i in seq(1:length(dcl))){
                 write(paste(dcl[[i]],collapse=","),file=filename,append=TRUE)
         }
+	if(! is.null(filename)){
+		sink()
+	}
 }
 # --- Standard Output / TeX
 else{
 # --- writing body
-        write(paste("\\begin{table}[t]\n\\centering\n\\begin{tabular}{l*{7}{c}}\n\\hline\\hline",sep=""),file=filename)
-        write(paste(paste("&\t\t",header,collapse=""),"\\\\\n\\hline",collapse=""),file=filename,append=TRUE)
+	if(! is.null(filename)){
+		filename <- paste(filename,".tex",sep="")
+		sink(filename)
+	}
+        cat("\\begin{table}[htbp]\n\\centering\n\\begin{tabular}{l*{7}{",dcolumn,"}}\n",toprule,sep="")
+        cat((paste("&\t\t",header,collapse="")),"\\\\\n",midrule,sep="")
         for(i in seq(1:length(dcl))){
                 if(length(dcl[[i]]) == 7){
                        dcl[[i]] <- append(dcl[[i]],"0")
                 }
-                write(paste(paste(dcl[[i]],collapse="\t\t &"),"\\\\",collapse=""),file=filename,append=TRUE)
+                cat(paste(dcl[[i]],collapse="\t\t &"),"\\\\\n",sep="")
 } 
-        write("\\hline\\hline\n\\end{tabular}",file=filename,append=TRUE)
-        write(paste("\\caption{",caption,"}",sep=""),file=filename,append=TRUE)  
-        write(paste("\\label{tab:",label,"}",sep=""),file=filename,append=TRUE)
-        write("\\end{table}",file=filename,append=TRUE)
+        cat(bottomrule,"\\end{tabular}\n")
+        if(! is.null(caption)){cat("\\caption{",caption,"}\n",sep="")}  
+	if(! is.null(label)){cat("\\label{tab:",label,"}\n",sep="")}
+        cat("\\end{table}\n",sep="")
+	if(! is.null(filename)){
+		sink()
+	}
         
         }
 # --- function end
