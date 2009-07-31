@@ -1,5 +1,5 @@
 Package: estout
-Version: 0.6-1
+Version: 0.7-1
 Date: 2009-07-31
 Title: Estimates Output
 Author: Felix Kaminsky <fkamins@uni-goettingen.de>, inspired by the
@@ -15,6 +15,6 @@ Description: The function collection stores the estimates of several
         variables to LaTeX and CSV.
 License: GPL-2
 URL: http://www.r-project.org, http://www.texnix.de
-Packaged: 2009-08-08 12:46:16 UTC; cataclysmic
+Packaged: 2009-11-11 08:13:06 UTC; cataclysmic
 Repository: CRAN
-Date/Publication: 2009-08-08 12:56:13
+Date/Publication: 2009-11-11 13:10:19

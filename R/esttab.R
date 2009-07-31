@@ -1,31 +1,52 @@
 `esttab` <-
-function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,stars=c(0.1,0.05,0.01),filename="estout.tex",csv=FALSE){
+function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,stars=c(0.1,0.05,0.01),filename="estout",csv=FALSE,sweave=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE){
 
-coeff_col_list <<- ccl  # reading list from eststo
-if(is.list(coeff_col_list)){  # catching use if empty ccl
-}
-else{return("No values stored. Program terminated!")}
+# reading list from eststo
+coeff_col_list <<- ccl
 
-var_list <- coeff_col_list[[1]][[1]][[1]] # starting list of used variables
-caption <- caption
-label <- label
+# catching use if empty ccl
+if(is.list(coeff_col_list)){}else{return("No values stored. I think you need to store some models first.")}
+
+# setting dcolumn = NULL
+if(is.null(dcolumn)){dcolumn <- "c"}else{dcolumn <- dcolumn}
+
+# setting tablepos if non-NULL
+if(is.null(table.pos)){}else{table.pos <- paste("[",table.pos,"]",sep="")}
+
+# setting caption for TeX
+if(is.null(caption)){texcaption <- caption}else{texcaption <- paste("\\caption{",caption,"}\n",sep="")}
+
+# setting label if non-NULL
+if(is.null(label)){}else{label <- paste("\\label{tab:",label,"}\n",sep="")}
+
+# starting list of used variables
+var_list <- coeff_col_list[[1]][[1]][[1]]
+
+# for CSV
 if(csv == TRUE){
-delimiter <- ","
-R2 <- "R^2"
-aR2 <- "adj.R^2"
-N <- "N"
-threestar <- "***"
-twostar <- "**"
-onestar <- "*"
+	save.file <- paste(filename,".csv",sep="")
+	delimiter <- ","
+	R2 <- "R^2"
+	aR2 <- "adj.R^2"
+	N <- "N"
+	om.end <- "\n"
+	caption <- paste(caption,om.end,sep="")
+	threestar <- "***"
+	twostar <- "**"
+	onestar <- "*"
 }
+# for TeX
 else{
-delimiter <- "&"
-R2 <- "$R^2$"
-aR2 <- "$adj.R^2$"
-N <- "$N$"
-threestar <-  "\\sym{***}"
-twostar <-  "\\sym{**}"
-onestar <-  "\\sym{*}"
+	save.file <- paste(filename,".tex",sep="")
+	delimiter <- "\t\t&"
+	R2 <- "$R^2$"
+	aR2 <- "$adj.R^2$"
+	N <- "$N$"
+	om.end <- "\\\\\n"
+	caption <- caption
+	threestar <-  "\\sym{***}"
+	twostar <-  "\\sym{**}"
+	onestar <-  "\\sym{*}"
 }
 ######### creating a vector of variable names ##########################
 for (j in 1:length(coeff_col_list)){
@@ -59,8 +80,11 @@ adds <- 4
 if(coeff_col_list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
 adds <- 2
 }
-output_matrix <- matrix(delimiter,nrow = var_count*2 + adds, ncol = length(coeff_col_list) + 1)
-#output_matrix[,length(coeff_col_list) + 2] <- "\n"
+
+om.ncol = length(coeff_col_list) + 2	# om.ncol = number of columns of output matrix
+om.nrow = var_count*2 + adds		# om.nrow = number of rows of output matrix
+output_matrix <- matrix(delimiter,om.nrow,om.ncol)		# make matrix[delimiter,om.nrow,om.ncol]
+output_matrix[,om.ncol] <- om.end							# fill last column
 for(i in 1:var_count){
         output_matrix[i*2,1] <- var_list[i]  #insert var-name in 1st column
         output_matrix[i*2+1,1] <- " "           #clean & from first column
@@ -70,10 +94,12 @@ if(coeff_col_list[[1]][[index2]][[index3]] == "lm"){     # checking if model is 
 output_matrix[length(output_matrix[,1])-2,1] <- R2
 output_matrix[length(output_matrix[,1])-1,1] <- aR2
 output_matrix[length(output_matrix[,1]),1] <- N
+end.sep.line <- om.nrow - 3
 }
 
 if(coeff_col_list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
 output_matrix[length(output_matrix[,1]),1] <- N
+end.sep.line <- om.nrow - 1
 }
 #print(output_matrix)  #control
 #########################################################################
@@ -142,54 +168,67 @@ for (j in 1:length(coeff_col_list)){
                } # end for (j)
 
 
-
-print(output_matrix) # console print-out
-
 if(csv == TRUE ){
-write(caption,file=filename)
-for (j in 1:length(output_matrix[,1])){
-                write_line <- paste(output_matrix[j,],collapse="")
-                write(write_line,file=filename,append=TRUE)
-                }
-if(t.value==TRUE){
-        write("t-values in brackets",file=filename,append=TRUE)
-}
-else if((p.value==TRUE) && (t.value==FALSE)){
-        write("p-values in brackets",file=filename,append=TRUE)
-}
-else{
-        write("Standard errors in parentheses",file=filename,append=TRUE)
-}
+	sink(save.file)
+	cat(caption)
+	cat(output_matrix)
+	if(t.value==TRUE){
+	        cat("t-values in brackets")
+	}
+	else if((p.value==TRUE) && (t.value==FALSE)){
+	        cat("p-values in brackets")
+	}
+	else{
+	        cat("Standard errors in parentheses")
+	}
+	sink()
 }
 ### writing tex
 else{
-write(paste("\\begin{table}[t]\n\\centering\n\\def\\sym#1{\\ifmmode^{#1}\\else\\(^{#1}\\)\\fi}\n\\begin{tabular}{l*{",length(output_matrix[2,])-1,"}{c}}\n\\hline\\hline",sep=""),file=filename)
-for (j in 1:length(output_matrix[,1])){
-                if(j == 1){
-                    write(paste(paste("\t\t","&\\multicolumn{1}{c}{(",1:(length(output_matrix[1,])-1),")} ",collapse=" "),"\\\\",collapse=""),file=filename,append=TRUE)
-                }
-                write(paste(paste(output_matrix[j,],"\t\t",collapse=""),"\\\\",collapse=""),file=filename,append=TRUE)
-                if(j == 1){
-                    write("\\hline",file=filename,append=TRUE)
-                }
-                if(j == (length(output_matrix[,1])-3)){
-                    write("\\hline",file=filename,append=TRUE)
-                }
-}
-write("\\hline\\hline",file=filename,append=TRUE)
-if(t.value==TRUE){
-        write(paste("\\multicolumn{",length(output_matrix[2,]),"}{l}{\\footnotesize t-values in brackets}\\\\",sep=""),file=filename,append=TRUE)
-}
-else if((p.value==TRUE) && (t.value==FALSE)){
-        write(paste("\\multicolumn{",length(output_matrix[2,]),"}{l}{\\footnotesize p-values in brackets}\\\\",sep=""),file=filename,append=TRUE)
+# begin sink
+	sink(save.file)
+# collate TeX formatted table
+	cat(paste("\\def\\sym#1{\\ifmmode^{#1}\\else\\(^{#1}\\)\\fi}\n\\begin{",table,"}",table.pos, if(caption.top==TRUE){texcaption},"
+\\centering
+\\begin{tabular}{l*{",om.ncol-2,"}{",dcolumn,"}}
+\\hline\\hline\n",sep=""))
+	for (j in 1:om.nrow){
+	                if(j == 1){
+	                    cat(paste(paste("\t","&\\multicolumn{1}{c}{(",1:(om.ncol-2),")} ",collapse=" "),"\\\\",collapse=""))
+	                }
+	                cat(output_matrix[j,])			# writing output <- matrix
+	                if(j == 1){
+	                    cat("\\hline\n")
+	                }
+	                if(j == (end.sep.line)){
+	                    cat("\\hline\n")
+	                }
+	}
+	cat("\\hline\\hline\n")
+	if(t.value==TRUE){
+	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize t-values in brackets}\\\\\n",sep=""))
+	}
+	else if((p.value==TRUE) && (t.value==FALSE)){
+	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize p-values in brackets}\\\\\n",sep=""))
+	}
+	else{
+	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize Standard errors in parentheses}\\\\\n",sep=""))
+	}
+	cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize $^{*}$ \\(p<",stars[1],"\\), $^{**}$ \\(p<",stars[2],"\\), $^{***}$ \\(p<",stars[3],"\\)}\\\\
+\\end{tabular}\n",if(caption.top==FALSE){texcaption},label,"\\end{",table,"}",sep=""))
+	# end sink	
+	sink()
+} 
+# end writing tex
+
+
+# If sweave is true then only echo \input{filename}
+if(sweave==TRUE){
+	cat("\\input{",filename,"}\n",sep="")
 }
 else{
-        write(paste("\\multicolumn{",length(output_matrix[2,]),"}{l}{\\footnotesize Standard errors in parentheses}\\\\",sep=""),file=filename,append=TRUE)
+print(output_matrix) # console print-out
 }
-write(paste("\\multicolumn{",length(output_matrix[2,]),"}{l}{\\footnotesize \\sym{*} \\(p<",stars[1],"\\), \\sym{**} \\(p<",stars[2],"\\), \\sym{***} \\(p<",stars[3],"\\)}\\\\\n\\end{tabular}",sep=""),file=filename,append=TRUE)
-write(paste("\\caption{",caption,"}",sep=""),file=filename,append=TRUE)  
-write(paste("\\label{tab:",label,"}",sep=""),file=filename,append=TRUE)
-write("\\end{table}",file=filename,append=TRUE)
-} # end writing tex
-} # esttab-end
+# esttab-end
+} 
 
