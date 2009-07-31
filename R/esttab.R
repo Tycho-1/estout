@@ -1,11 +1,11 @@
 `esttab` <-
-function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,stars=c(0.1,0.05,0.01),filename="estout",csv=FALSE,sweave=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE){
+function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename="estout",csv=FALSE,sweave=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE){
 
 # reading list from eststo
-coeff_col_list <<- ccl
+model.coeff.list <<- ccl
 
 # catching use if empty ccl
-if(is.list(coeff_col_list)){}else{return("No values stored. I think you need to store some models first.")}
+if(is.list(model.coeff.list)){}else{return("No values stored. I think you need to store some models first.")}
 
 # setting dcolumn = NULL
 if(is.null(dcolumn)){dcolumn <- "c"}else{dcolumn <- dcolumn}
@@ -19,8 +19,20 @@ if(is.null(caption)){texcaption <- caption}else{texcaption <- paste("\\caption{"
 # setting label if non-NULL
 if(is.null(label)){}else{label <- paste("\\label{tab:",label,"}\n",sep="")}
 
+# setting TeX commands for booktabs
+if(booktabs == TRUE){
+	toprule <- "\\toprule\n"
+	midrule <- "\\midrule\n"
+	bottomrule <- "\\bottomrule\n"
+}
+else{
+	toprule <- "\\hline\\hline\n"
+	midrule <- "\\hline\n"
+	bottomrule <- "\\hline\\hline\n"
+}
+
 # starting list of used variables
-var_list <- coeff_col_list[[1]][[1]][[1]]
+var_list <- c()#model.coeff.list[[1]][[1]][[1]]
 
 # for CSV
 if(csv == TRUE){
@@ -31,9 +43,9 @@ if(csv == TRUE){
 	N <- "N"
 	om.end <- "\n"
 	caption <- paste(caption,om.end,sep="")
-	threestar <- "***"
-	twostar <- "**"
-	onestar <- "*"
+	threestar <- paste(sig.sym[[3]],sep="")
+	twostar <- paste(sig.sym[[2]],sep="")
+	onestar <- paste(sig.sym[[1]],sep="")
 }
 # for TeX
 else{
@@ -44,60 +56,65 @@ else{
 	N <- "$N$"
 	om.end <- "\\\\\n"
 	caption <- caption
-	threestar <-  "\\sym{***}"
-	twostar <-  "\\sym{**}"
-	onestar <-  "\\sym{*}"
+	threestar <- paste("\\sym{",sig.sym[[3]],"}",sep="")
+	twostar <- paste("\\sym{",sig.sym[[2]],"}",sep="")
+	onestar <- paste("\\sym{",sig.sym[[1]],"}",sep="")
 }
 ######### creating a vector of variable names ##########################
-for (j in 1:length(coeff_col_list)){
-        col_length <- length(coeff_col_list[[j]]) # length of one column list
+
+for (j in 1:length(model.coeff.list)){
+        col_length <- length(model.coeff.list[[j]]) # length of one model column list
         for (i in 1:(col_length-1)){
-                var_count <- 1
-               for(k in var_list){
-                        if(k == coeff_col_list[[j]][[i]][[1]]){
-                        break
-                        }
-                        else if(var_count < length(var_list)){
-                                var_count <- var_count + 1
-                        }
-                        else if((k != coeff_col_list[[j]][[i]][[1]]) && (var_count == length(var_list))){
-                                var_list <- c(var_list,coeff_col_list[[j]][[i]][[1]])
-                        }
-               }
-        }
+                var.count <- 0
+		for(var.exist in grepl(model.coeff.list[[j]][[i]][[1]],var_list)){
+			if(var.exist == FALSE){
+				var.count <- var.count + 1
+				
+			}
+			else if(var.exist == TRUE){
+				break
+			}
+		}
+		if(var.count == length(var_list)){
+                          var_list <- c(var_list,model.coeff.list[[j]][[i]][[1]])
+		}
+	}
 }
-#print(var_count) #control
-#print(var_list)  #control
+var.count <- length(var_list)
+#cat(var.count)
+#cat("\n") #control
+#cat(var_list)
+#cat("\n")  #control
 #########################################################################
 
 ######################## making a matrix  to be filled###################
-index2 <- length(coeff_col_list[[1]])  # index length of columns in model 1
-index3 <- length(coeff_col_list[[1]][[index2]]) # index length of values in last columns
+index2 <- length(model.coeff.list[[1]])  # index length of columns in model 1
+index3 <- length(model.coeff.list[[1]][[index2]]) # index length of values in last columns
 
-if(coeff_col_list[[1]][[index2]][[index3]] == "lm"){     # checking if model is of lm class
+if(model.coeff.list[[1]][[index2]][[index3]] == "lm"){     # checking if model is of lm class
 adds <- 4
 }
-if(coeff_col_list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
+if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
 adds <- 2
 }
 
-om.ncol = length(coeff_col_list) + 2	# om.ncol = number of columns of output matrix
-om.nrow = var_count*2 + adds		# om.nrow = number of rows of output matrix
+om.ncol = length(model.coeff.list) + 2	# om.ncol = number of columns of output matrix
+om.nrow = var.count*2 + adds		# om.nrow = number of rows of output matrix
 output_matrix <- matrix(delimiter,om.nrow,om.ncol)		# make matrix[delimiter,om.nrow,om.ncol]
 output_matrix[,om.ncol] <- om.end							# fill last column
-for(i in 1:var_count){
+for(i in 1:var.count){
         output_matrix[i*2,1] <- var_list[i]  #insert var-name in 1st column
         output_matrix[i*2+1,1] <- " "           #clean & from first column
 }
 #-
-if(coeff_col_list[[1]][[index2]][[index3]] == "lm"){     # checking if model is of lm class
+if(model.coeff.list[[1]][[index2]][[index3]] == "lm"){     # checking if model is of lm class
 output_matrix[length(output_matrix[,1])-2,1] <- R2
 output_matrix[length(output_matrix[,1])-1,1] <- aR2
 output_matrix[length(output_matrix[,1]),1] <- N
 end.sep.line <- om.nrow - 3
 }
 
-if(coeff_col_list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
+if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
 output_matrix[length(output_matrix[,1]),1] <- N
 end.sep.line <- om.nrow - 1
 }
@@ -105,38 +122,38 @@ end.sep.line <- om.nrow - 1
 #########################################################################
 ########## making stars and putting in matrix #### stars depend on p-values ##########
 
-for (j in 1:length(coeff_col_list)){ 
-        col_length <- length(coeff_col_list[[j]])
+for (j in 1:length(model.coeff.list)){ 
+        col_length <- length(model.coeff.list[[j]])
                 for (i in 1:(col_length-1)){
-                        if ( coeff_col_list[[j]][[i]][[5]] < stars[3] ) {
-                                sigs <- paste(delimiter,round(coeff_col_list[[j]][[i]][[2]],round.dec),threestar,sep="") #coefficient
-                                std_err <- paste(delimiter,"(",round(coeff_col_list[[j]][[i]][[3]],round.dec),")",sep="")        #std.err
-                                t_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[4]],round.dec),"]",sep="")          #t-value
-                                p_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
+                        if ( model.coeff.list[[j]][[i]][[5]] < sig.levels[3] ) {
+                                sigs <- paste(delimiter,round(model.coeff.list[[j]][[i]][[2]],round.dec),threestar,sep="") #coefficient
+                                std_err <- paste(delimiter,"(",round(model.coeff.list[[j]][[i]][[3]],round.dec),")",sep="")        #std.err
+                                t_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[4]],round.dec),"]",sep="")          #t-value
+                                p_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
                         }
-                        else if( coeff_col_list[[j]][[i]][[5]] < stars[2] ) {
-                                sigs <- paste(delimiter,round(coeff_col_list[[j]][[i]][[2]],round.dec),twostar,sep="")
-                                std_err <- paste(delimiter,"(",round(coeff_col_list[[j]][[i]][[3]],round.dec),")",sep="")
-                                t_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[4]],round.dec),"]",sep="")
-                                p_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
+                        else if( model.coeff.list[[j]][[i]][[5]] < sig.levels[2] ) {
+                                sigs <- paste(delimiter,round(model.coeff.list[[j]][[i]][[2]],round.dec),twostar,sep="")
+                                std_err <- paste(delimiter,"(",round(model.coeff.list[[j]][[i]][[3]],round.dec),")",sep="")
+                                t_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[4]],round.dec),"]",sep="")
+                                p_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
                         }
-                        else if( coeff_col_list[[j]][[i]][[5]] < stars[1] ) {
-                                sigs <- paste(delimiter,round(coeff_col_list[[j]][[i]][[2]],round.dec),onestar,sep="")
-                                std_err <- paste(delimiter,"(",round(coeff_col_list[[j]][[i]][[3]],round.dec),")",sep="")
-                                t_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[4]],round.dec),"]",sep="")
-                                p_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
+                        else if( model.coeff.list[[j]][[i]][[5]] < sig.levels[1] ) {
+                                sigs <- paste(delimiter,round(model.coeff.list[[j]][[i]][[2]],round.dec),onestar,sep="")
+                                std_err <- paste(delimiter,"(",round(model.coeff.list[[j]][[i]][[3]],round.dec),")",sep="")
+                                t_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[4]],round.dec),"]",sep="")
+                                p_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
                         }
                         else{
-                                sigs <- paste(delimiter,round(coeff_col_list[[j]][[i]][[2]],round.dec),"",sep="")
-                                std_err <- paste(delimiter,"(",round(coeff_col_list[[j]][[i]][[3]],round.dec),")",sep="")
-                                t_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[4]],round.dec),"]",sep="")
-                                p_val <- paste(delimiter,"[",round(coeff_col_list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
+                                sigs <- paste(delimiter,round(model.coeff.list[[j]][[i]][[2]],round.dec),"",sep="")
+                                std_err <- paste(delimiter,"(",round(model.coeff.list[[j]][[i]][[3]],round.dec),")",sep="")
+                                t_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[4]],round.dec),"]",sep="")
+                                p_val <- paste(delimiter,"[",round(model.coeff.list[[j]][[i]][[5]],round.dec),"]",sep="")          #p-value
                         }
                         k <- 1
-                        while(var_list[k] != coeff_col_list[[j]][[i]][[1]]){
+                        while(var_list[k] != model.coeff.list[[j]][[i]][[1]]){
                                 k <- k +1
-                        }
-#print(k)
+                       }
+#print(k) #control-----------!!!!!!!!!!!!!
                         output_matrix[k*2,j+1] <- sigs #entry of coefficients
                         if(t.value == TRUE){
                                 output_matrix[k*2+1,j+1] <- t_val  #if set entry of t-values
@@ -150,22 +167,23 @@ for (j in 1:length(coeff_col_list)){
                 } # end for (i)
                 output_matrix[1,1] <- " "
                 if(csv == TRUE){
-                output_matrix[1,j+1] <- paste(delimiter,coeff_col_list[[j]][[col_length]][[1]],sep="") #dep.var
+                output_matrix[1,j+1] <- paste(delimiter,model.coeff.list[[j]][[col_length]][[1]],sep="") #dep.var
                 }
                 else{
-                output_matrix[1,j+1] <- paste('&\\multicolumn{1}{c}{',coeff_col_list[[j]][[col_length]][[1]],"}",sep="") #dep.var
+                output_matrix[1,j+1] <- paste('&\\multicolumn{1}{c}{',model.coeff.list[[j]][[col_length]][[1]],"}",sep="") #dep.var
                 }
-                if(coeff_col_list[[j]][[col_length]][[length(coeff_col_list[[j]][[col_length]])]] == "lm"){     # checking if model is of lm class
+                if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "lm"){     # checking if model is of lm class
 #print("Model is of class 'lm'")
-                output_matrix[length(output_matrix[,j+1])-2,j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[2]],round.dec),sep="") # Rsquared
-                output_matrix[length(output_matrix[,j+1])-1,j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[3]],round.dec),sep="") # adj.Rsquared
-                output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[4]],round.dec),sep="") # N
+                output_matrix[length(output_matrix[,j+1])-2,j+1] <- paste(delimiter,round(model.coeff.list[[j]][[col_length]][[2]],round.dec),sep="") # Rsquared
+                output_matrix[length(output_matrix[,j+1])-1,j+1] <- paste(delimiter,round(model.coeff.list[[j]][[col_length]][[3]],round.dec),sep="") # adj.Rsquared
+                output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[4]],"}",sep="") # N
                 }
-                if(coeff_col_list[[j]][[col_length]][[length(coeff_col_list[[j]][[col_length]])]] == "plm"){     # checking if model is of plm class
+                if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "plm"){     # checking if model is of plm class
 #print("Model is of class 'plm'")
-                output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,round(coeff_col_list[[j]][[col_length]][[2]],round.dec),sep="") # N
+                output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[2]],"}",sep="") # N
                 }
-               } # end for (j)
+		#cat(output_matrix)  #control ----------!!!!!!!!!!
+} # end for model (j)
 
 
 if(csv == TRUE ){
@@ -191,20 +209,20 @@ else{
 	cat(paste("\\def\\sym#1{\\ifmmode^{#1}\\else\\(^{#1}\\)\\fi}\n\\begin{",table,"}",table.pos, if(caption.top==TRUE){texcaption},"
 \\centering
 \\begin{tabular}{l*{",om.ncol-2,"}{",dcolumn,"}}
-\\hline\\hline\n",sep=""))
+",toprule,sep=""))
 	for (j in 1:om.nrow){
 	                if(j == 1){
 	                    cat(paste(paste("\t","&\\multicolumn{1}{c}{(",1:(om.ncol-2),")} ",collapse=" "),"\\\\",collapse=""))
 	                }
 	                cat(output_matrix[j,])			# writing output <- matrix
 	                if(j == 1){
-	                    cat("\\hline\n")
+	                    cat(midrule)
 	                }
 	                if(j == (end.sep.line)){
-	                    cat("\\hline\n")
+	                    cat(midrule)
 	                }
 	}
-	cat("\\hline\\hline\n")
+	cat(bottomrule)
 	if(t.value==TRUE){
 	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize t-values in brackets}\\\\\n",sep=""))
 	}
@@ -214,7 +232,7 @@ else{
 	else{
 	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize Standard errors in parentheses}\\\\\n",sep=""))
 	}
-	cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize $^{*}$ \\(p<",stars[1],"\\), $^{**}$ \\(p<",stars[2],"\\), $^{***}$ \\(p<",stars[3],"\\)}\\\\
+	cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize $^{",sig.sym[1],"}$ (p $\\le$ ",sig.levels[1],"), $^{",sig.sym[2],"}$ (p $\\le$ ",sig.levels[2],"), $^{",sig.sym[3],"}$ (p $\\le$ ",sig.levels[3],")}\\\\
 \\end{tabular}\n",if(caption.top==FALSE){texcaption},label,"\\end{",table,"}",sep=""))
 	# end sink	
 	sink()
