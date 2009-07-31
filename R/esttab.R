@@ -130,6 +130,9 @@ adds <- 4
 if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
 adds <- 2
 }
+if(model.coeff.list[[1]][[index2]][[index3]] == "glm"){     # checking if model is of glm class (here Zelig package)
+adds <- 2
+}
 
 om.ncol = length(model.coeff.list) + 2	# om.ncol = number of columns of output matrix
 om.nrow = var.count*2 + adds		# om.nrow = number of rows of output matrix
@@ -148,6 +151,10 @@ end.sep.line <- om.nrow - 3
 }
 
 if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
+output_matrix[length(output_matrix[,1]),1] <- N
+end.sep.line <- om.nrow - 1
+}
+if(model.coeff.list[[1]][[index2]][[index3]] == "glm"){     # checking if model is of glm class
 output_matrix[length(output_matrix[,1]),1] <- N
 end.sep.line <- om.nrow - 1
 }
@@ -229,6 +236,10 @@ for (j in 1:length(model.coeff.list)){
                 }
                 if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "plm"){     # checking if model is of plm class
 #print("Model is of class 'plm'")
+                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[2]],"}",sep="") # N
+                }
+                if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "glm"){     # checking if model is of glm class
+#print("Model is of class 'glm'")
                 	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[2]],"}",sep="") # N
                 }
 		#cat(output_matrix)  #control ----------!!!!!!!!!!
