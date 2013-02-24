@@ -11,7 +11,7 @@ sig.sym=c("*","**","***"),
 filename=NULL, csv=FALSE, dcolumn=NULL, table="table", 
 table.pos="htbp", caption.top=FALSE, booktabs=FALSE,
 var.order=NULL, sub.sections=NULL,var.rename=NULL,
-resizebox=c(0,0),colnumber=FALSE)
+resizebox=c(0,0),colnumber=FALSE, store="default")
 }
 \arguments{
 \item{t.value}{if set to TRUE the table will contain t-values instead of the default standard errors}
@@ -34,6 +34,7 @@ resizebox=c(0,0),colnumber=FALSE)
 \item{var.rename}{vector of names to replace variable abbreviations of model with real names. (e.g. var.rename=c("old.name1","new.name1","old.name2","new.name2") )}
 \item{resizebox}{vector containing width and height for resizebox. (e.g. resizebox=c("\\\\textwidth","!").) Default c(0,0) disables resizebox.}
 \item{colnumber}{turn on/off column / model number. Off by default.}
+\item{store}{Specifies the storage unit where the data is stored that should be used for the output table.}
 }
 \seealso{ eststo, estclear }
 
@@ -42,5 +43,6 @@ resizebox=c(0,0),colnumber=FALSE)
 \examples{
 \dontrun{
 esttab(t.value=TRUE,round.dec=2,caption="Example Title",label="bwgth")
+esttab(p.value=TRUE,colnumber=TRUE,texfontsize="\\small",store="tab2")
 }
 }

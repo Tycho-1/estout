@@ -1,8 +1,9 @@
 `esttab` <-
-function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,texfontsize=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename=NULL,csv=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE,var.order=NULL,sub.sections=NULL,var.rename=NULL,resizebox=c(0,0),colnumber=FALSE){
+function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,texfontsize=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename=NULL,csv=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE,var.order=NULL,sub.sections=NULL,var.rename=NULL,resizebox=c(0,0),colnumber=FALSE,store="default"){
 
 # reading list from eststo
-model.coeff.list <- estout:::estoutstorage$ccl
+prev.list <- paste(store,".ccl",sep="")
+model.coeff.list <- eval(lapply(prev.list,as.name)[[1]],estout:::estoutstorage)
 
 # catching use if empty ccl
 if(is.list(model.coeff.list)){}else{return("No values stored. I think you need to store some models first.")}
@@ -142,7 +143,7 @@ if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model 
 adds <- 4
 }
 if(model.coeff.list[[1]][[index2]][[index3]] == "glm"){     # checking if model is of glm class (here Zelig package)
-adds <- 2
+adds <- 4
 }
 
 om.ncol = length(model.coeff.list) + 2	# om.ncol = number of columns of output matrix
@@ -169,7 +170,7 @@ end.sep.line <- om.nrow - 3
 }
 if(model.coeff.list[[1]][[index2]][[index3]] == "glm"){     # checking if model is of glm class
 output_matrix[length(output_matrix[,1]),1] <- N
-end.sep.line <- om.nrow - 1
+end.sep.line <- om.nrow - 3
 }
 #print(output_matrix)  #control
 #########################################################################

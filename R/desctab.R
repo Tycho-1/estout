@@ -1,8 +1,9 @@
-`desctab` <- function(filename=NULL,caption=NULL,label=NULL,csv=FALSE,dcolumn=NULL,booktabs=FALSE){
+`desctab` <- function(filename=NULL,caption=NULL,label=NULL,csv=FALSE,dcolumn=NULL,booktabs=FALSE,store="default"){
 ###
 # --- variable definition
 header <- c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max.","Missing Values")
-input_matrix <- estout:::estoutstorage$dcl
+prev.list <- paste(store,".dcl",sep="")
+input_matrix <- eval(lapply(prev.list,as.name)[[1]],estout:::estoutstorage)
 
 # --- dcolumn or center?
 if(is.null(dcolumn)){

@@ -1,4 +1,5 @@
 `descclear` <-
-function(){
-assign("dcl",NULL,estout:::estoutstorage)
+function(store="default"){
+    prev.list <- paste(store,".dcl",sep="")
+assign(prev.list,NULL,estout:::estoutstorage)
 }

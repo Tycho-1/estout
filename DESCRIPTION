@@ -1,5 +1,5 @@
 Package: estout
-Version: 1.1
+Version: 1.2
 Date: 2013-02-24
 Title: Estimates Output
 Author: Felix Kaminsky <fkamins@uni-goettingen.de>, inspired by the
@@ -17,7 +17,7 @@ Description: This package is intended to speedup the process of
         data-frames and single variables to LaTeX and CSV.
 License: GPL-2
 URL: http://www.toolswitch.net
-Packaged: 2013-02-24 17:27:39 UTC; thunderboy
+Packaged: 2013-02-25 12:17:19 UTC; thunderboy
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-02-24 20:01:51
+Date/Publication: 2013-02-26 16:24:42

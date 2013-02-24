@@ -2,10 +2,11 @@
 \alias{estclear}
 \title{Cleaning up after eststo.}
 \description{Cleaning ccl object created by the eststo() function.}
-\usage{estclear()}
+\usage{estclear(store="default")}
 
 \arguments{
-no further arguments necessary. Clears the transfer-object from eststo() to esttab() of the earlier models.
+When using the default storage unit, no parameters are necessary.
+\item{store}{Parameter to clear specific table storage unit.}
 }
 
 \value{estclear() clears all data stored in the ccl object that is created by the eststo() function.}
@@ -14,5 +15,6 @@ no further arguments necessary. Clears the transfer-object from eststo() to estt
 \examples{
 \dontrun{
 estclear()
+estclear(store="tab1")
 }
 }

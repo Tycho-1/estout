@@ -5,7 +5,7 @@
 }
 \usage{
 desctab(filename=NULL,caption = NULL, label = NULL,csv=FALSE
-, dcolumn=NULL,booktabs=FALSE)
+, dcolumn=NULL,booktabs=FALSE,store="default")
 }
 \arguments{
 \item{filename}{give an alternative filename, default is "descout.tex"}
@@ -14,6 +14,7 @@ desctab(filename=NULL,caption = NULL, label = NULL,csv=FALSE
 \item{csv}{for output to csv (comma separated textfile) for direct import to a spreadsheet program,default is TeX-output}
 \item{dcolumn}{inserting a in the head defined dcolumn column-type.}
 \item{booktabs}{if set to TRUE "\\hline" is replaced by its booktabs counterparts.}
+\item{store}{Calls up specific storage unit to output this table.}
 }
 
 \seealso{ eststo, estclear, esttab, descsto }

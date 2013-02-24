@@ -2,17 +2,18 @@
 \alias{descclear}
 \title{Cleaning up after descsto.}
 \description{Cleaning dcl object created by the descsto() function.}
-\usage{estclear()}
+\usage{descclear(store="default")}
 
 \arguments{
-no further arguments necessary. Clears the transfer-object from descsto() to desctab() of the earlier models.
+\item{store}{Remove storage unit for specific output tables.}
 }
 
-\value{descclear() clears all data stored in the ccl object that is created by the eststo() function.}
+\value{descclear() clears all data stored in the dcl object that is created by the descsto() function.}
 \author{Felix Kaminsky \email{fkamins@uni-goettingen.de} inspired by estout for Stata.}
 
 \examples{
 \dontrun{
 descclear()
+descclear(store="tab1")
 }
 }

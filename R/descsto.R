@@ -1,9 +1,10 @@
-`descsto` <- function(x=NULL,row=NULL,name=NULL,drop.row=NULL){
+`descsto` <- function(x=NULL,row=NULL,name=NULL,drop.row=NULL,store="default"){
 
 # --- creating storage lists and vars
 # check if descsto was run previously
-if(exists("dcl",envir=estout:::estoutstorage) && length(estout:::estoutstorage$dcl) != 0){
-        output <- estout:::estoutstorage$dcl
+prev.list <- paste(store,".dcl",sep="")
+if(exists(prev.list,envir=estout:::estoutstorage) && length(eval(lapply(prev.list,as.name)[[1]],estout:::estoutstorage)) != 0){
+        output <- eval(lapply(prev.list,as.name)[[1]],estout:::estoutstorage)
 }
 else{
         output <- list()

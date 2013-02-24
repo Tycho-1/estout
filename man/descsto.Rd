@@ -2,13 +2,14 @@
 \alias{descsto}
 \title{Descriptive Storage}
 \description{descsto stores the descriptive statistics of the summary command of data.frames and single vectors of a variable into the list object "dcl".}
-\usage{descsto(x,row=NULL,name=NULL,drop.row=NULL)}
+\usage{descsto(x,row=NULL,name=NULL,drop.row=NULL,store="default")}
 
 \arguments{
 \item{x}{Either a data.frame of observations or a single vector.}
 \item{name}{Mandatory parameter in case you add a single vector.}
 \item{row}{Optional parameter. Using row= you can overwrite existing rows "dcl".}
 \item{drop.row}{Vector to remove rows from the output table. Note: Braces need to be escaped with a \\. E.g. \\).}
+\item{store}{Define specific storage units for multiple tables. Each unit holds one set of data for one output table.}
 }
 
 \value{
@@ -23,11 +24,13 @@
 \examples{
 \dontrun{
 B <- read.table("../data/bwght.tab",header=TRUE)
+C <- read.table("../data/lala.tab",header=TRUE)
 attach(B)
 
 descsto(B)
 descsto(cigs,name="cigarettes")
 descsto(faminc,name="faminc",row=2)
+descsto(store="tabC")
 }
 }
 \seealso{desctab,eststo,esttab, estclear}
