@@ -1,10 +1,9 @@
 `descsto` <- function(x=NULL,row=NULL,name=NULL,drop.row=NULL){
 
-
 # --- creating storage lists and vars
 # check if descsto was run previously
-if(exists("dcl",where=1) && length(dcl) != 0){
-        output <<- dcl
+if(exists("dcl",envir=estout:::estoutstorage) && length(estout:::estoutstorage$dcl) != 0){
+        output <- estout:::estoutstorage$dcl
 }
 else{
         output <- list()
@@ -29,7 +28,7 @@ else{
 	if(! is.null(drop.row) && length(output) != 0){
 		drop.row.fct(d.r=drop.row,out=output)
 	}
-	return(dcl <<- output)
+        assign("dcl",output,estout:::estoutstorage)
 }
 
 # --- row to be overwritten
@@ -63,6 +62,5 @@ else{
 if(! is.null(drop.row) && length(output) != 0){
 	drop.row.fct(d.r=drop.row,out=output)
 }
-
-return(dcl <<- output)
+assign("dcl",output,estout:::estoutstorage)
 }

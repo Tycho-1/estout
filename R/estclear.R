@@ -1,5 +1,4 @@
 `estclear` <-
 function(){
-return(ccl<<-NULL)
+assign("ccl",NULL,estout:::estoutstorage)
 }
-

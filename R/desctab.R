@@ -2,7 +2,7 @@
 ###
 # --- variable definition
 header <- c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max.","Missing Values")
-input_matrix <<- dcl
+input_matrix <- estout:::estoutstorage$dcl
 
 # --- dcolumn or center?
 if(is.null(dcolumn)){
@@ -29,8 +29,8 @@ if(csv == TRUE){
 	}
         if(! is.null(caption)){cat(caption,"\n",sep="")}  
         cat(paste(",",header,collapse=""),"\n",sep="")
-        for(i in seq(1:length(dcl))){
-                write(paste(dcl[[i]],collapse=","),file=filename,append=TRUE)
+        for(i in seq(1:length(input_matrix))){
+                write(paste(input_matrix[[i]],collapse=","),file=filename,append=TRUE)
         }
 	if(! is.null(filename)){
 		sink()
@@ -45,11 +45,11 @@ else{
 	}
         cat("\\begin{table}[htbp]\n\\centering\n\\begin{tabular}{l*{7}{",dcolumn,"}}\n",toprule,sep="")
         cat((paste("&\t\t",header,collapse="")),"\\\\\n",midrule,sep="")
-        for(i in seq(1:length(dcl))){
-                if(length(dcl[[i]]) == 7){
-                       dcl[[i]] <- append(dcl[[i]],"0")
+        for(i in seq(1:length(input_matrix))){
+                if(length(input_matrix[[i]]) == 7){
+                       input_matrix[[i]] <- append(input_matrix[[i]],"0")
                 }
-                cat(paste(dcl[[i]],collapse="\t\t &"),"\\\\\n",sep="")
+                cat(paste(input_matrix[[i]],collapse="\t\t &"),"\\\\\n",sep="")
 } 
         cat(bottomrule,"\\end{tabular}\n")
         if(! is.null(caption)){cat("\\caption{",caption,"}\n",sep="")}  

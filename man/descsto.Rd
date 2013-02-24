@@ -8,7 +8,7 @@
 \item{x}{Either a data.frame of observations or a single vector.}
 \item{name}{Mandatory parameter in case you add a single vector.}
 \item{row}{Optional parameter. Using row= you can overwrite existing rows "dcl".}
-\item{drop.row}{Vector to remove rows from the output table. Note: Braces need to be escaped with a "\\". E.g. "\\)".}
+\item{drop.row}{Vector to remove rows from the output table. Note: Braces need to be escaped with a \\. E.g. \\).}
 }
 
 \value{

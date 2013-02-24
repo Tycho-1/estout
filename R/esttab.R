@@ -1,8 +1,8 @@
 `esttab` <-
-function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename=NULL,csv=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE,var.order=NULL,sub.sections=NULL,var.rename=NULL){
+function(t.value=FALSE,p.value=FALSE,round.dec=3,caption=NULL,label=NULL,texfontsize=NULL,sig.levels=c(0.1,0.05,0.01),sig.sym=c("*","**","***"),filename=NULL,csv=FALSE,dcolumn=NULL,table="table",table.pos="htbp",caption.top=FALSE,booktabs=FALSE,var.order=NULL,sub.sections=NULL,var.rename=NULL,resizebox=c(0,0),colnumber=FALSE){
 
 # reading list from eststo
-model.coeff.list <<- ccl
+model.coeff.list <- estout:::estoutstorage$ccl
 
 # catching use if empty ccl
 if(is.list(model.coeff.list)){}else{return("No values stored. I think you need to store some models first.")}
@@ -19,6 +19,8 @@ if(is.null(caption)){texcaption <- caption}else{texcaption <- paste("\\caption{"
 # setting label if non-NULL
 if(is.null(label)){}else{label <- paste("\\label{tab:",label,"}\n",sep="")}
 
+# setting texfontsize if non-NULL
+if(is.null(texfontsize)){}else{texfont <- paste(texfontsize,"\n",sep="")}
 # converting sub.sections vector to list of type list[i] = c(position,text)
 sub.sections.list <- NULL
 if(is.null(sub.sections) == FALSE){
@@ -118,6 +120,15 @@ var.count <- length(var_list)
 #cat("\n") #control
 #cat(var_list)
 #cat("\n")  #control
+# creating code for resizebox in TeX
+resizebox <- resizebox
+if(resizebox[1] == 0 && resizebox[2] == 0){
+    resize=FALSE
+}
+else{
+    resizetop <- paste("\n\\resizebox{",resizebox[1],"}{",resizebox[2],"}{",sep="")
+    resize <- TRUE
+}
 #########################################################################
 
 ######################## making a matrix  to be filled###################
@@ -128,7 +139,7 @@ if(model.coeff.list[[1]][[index2]][[index3]] == "lm"){     # checking if model i
 adds <- 4
 }
 if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
-adds <- 2
+adds <- 4
 }
 if(model.coeff.list[[1]][[index2]][[index3]] == "glm"){     # checking if model is of glm class (here Zelig package)
 adds <- 2
@@ -151,8 +162,10 @@ end.sep.line <- om.nrow - 3
 }
 
 if(model.coeff.list[[1]][[index2]][[index3]] == "plm"){     # checking if model is of plm class
+output_matrix[length(output_matrix[,1])-2,1] <- R2
+output_matrix[length(output_matrix[,1])-1,1] <- aR2
 output_matrix[length(output_matrix[,1]),1] <- N
-end.sep.line <- om.nrow - 1
+end.sep.line <- om.nrow - 3
 }
 if(model.coeff.list[[1]][[index2]][[index3]] == "glm"){     # checking if model is of glm class
 output_matrix[length(output_matrix[,1]),1] <- N
@@ -209,7 +222,7 @@ for (j in 1:length(model.coeff.list)){
 #print(model.coeff.list[[j]][[col_length]][[1]]) #control-------------!!!!
 
 		# rename dep.var
-		dep.var <- deparse(ccl[[j]][[col_length]][[1]])
+		dep.var <- deparse(model.coeff.list[[j]][[col_length]][[1]])
 		if(is.null(var.rename) == FALSE){
 			for(i in 1:length(var.rename.list)){
 				if(dep.var == var.rename.list[[i]][[1]]){
@@ -235,12 +248,14 @@ for (j in 1:length(model.coeff.list)){
                 	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,if(! csv==TRUE){"\\multicolumn{1}{c}{"},model.coeff.list[[j]][[col_length]][[4]],if(! csv==TRUE){"}"},sep="") # N
                 }
                 if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "plm"){     # checking if model is of plm class
+    	           	output_matrix[length(output_matrix[,j+1])-2,j+1] <- paste(delimiter,round(model.coeff.list[[j]][[col_length]][[2]],round.dec),sep="") # Rsquared
+        	    	output_matrix[length(output_matrix[,j+1])-1,j+1] <- paste(delimiter,round(model.coeff.list[[j]][[col_length]][[3]],round.dec),sep="") # adj.Rsquared
+                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,if(! csv==TRUE){"\\multicolumn{1}{c}{"},model.coeff.list[[j]][[col_length]][[4]],if(! csv==TRUE){"}"},sep="") # N
 #print("Model is of class 'plm'")
-                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[2]],"}",sep="") # N
                 }
                 if(model.coeff.list[[j]][[col_length]][[length(model.coeff.list[[j]][[col_length]])]] == "glm"){     # checking if model is of glm class
 #print("Model is of class 'glm'")
-                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,"\\multicolumn{1}{c}{",model.coeff.list[[j]][[col_length]][[2]],"}",sep="") # N
+                	output_matrix[length(output_matrix[,j+1]),j+1] <- paste(delimiter,if(! csv==TRUE){"\\multicolumn{1}{c}{"},model.coeff.list[[j]][[col_length]][[2]],if(! csv==TRUE){"}"},sep="") # N
                 }
 		#cat(output_matrix)  #control ----------!!!!!!!!!!
 } # end for model (j)
@@ -291,12 +306,15 @@ else{
 	}
 # collate TeX formatted table
 	cat("\\def\\sym#1{\\ifmmode^{#1}\\else\\(^{#1}\\)\\fi}\n\\begin{",table,"}",table.pos, if(caption.top==TRUE){texcaption},"
-\\centering
+\\centering\n",texfontsize,
+if(resize==TRUE){resizetop},"
 \\begin{tabular}{l*{",om.ncol-2,"}{",dcolumn,"}}
 ",toprule,sep="")
 	for (j in 1:om.nrow){
 	                if(j == 1){
-	                    cat(paste(paste("\t","&\\multicolumn{1}{c}{(",1:(om.ncol-2),")} ",collapse=" "),"\\\\",collapse=""))
+                            if(colnumber==TRUE){
+                                cat(paste(paste("\t","&\\multicolumn{1}{c}{(",1:(om.ncol-2),")} ",collapse=" "),"\\\\",collapse=""))
+                            }
 	                }
 	                cat(output_matrix[j,])			# writing output <- matrix
 	                if(j == 1){
@@ -324,7 +342,8 @@ else{
 	        cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize Standard errors in parentheses}\\\\\n",sep=""))
 	}
 	cat(paste("\\multicolumn{",om.ncol-1,"}{l}{\\footnotesize $^{",sig.sym[1],"}$ (p $\\le$ ",sig.levels[1],"), $^{",sig.sym[2],"}$ (p $\\le$ ",sig.levels[2],"), $^{",sig.sym[3],"}$ (p $\\le$ ",sig.levels[3],")}\\\\
-\\end{tabular}\n",if(caption.top==FALSE){texcaption},label,"\\end{",table,"}\n",sep=""))
+\\end{tabular}\n",if(resize==TRUE){"}\n"},
+if(caption.top==FALSE){texcaption},label,"\\end{",table,"}\n",sep=""))
 	# end sink
 	if(! is.null(filename)){
 		sink()

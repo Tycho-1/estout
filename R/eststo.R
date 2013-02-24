@@ -1,3 +1,5 @@
+estoutstorage <- new.env()
+
 `eststo` <-
 function(x,est_column=NULL){ # starting function "eststo"
 
@@ -7,7 +9,7 @@ coeff <- summary$coefficients
 vars <- attributes(summary$coeff)$dimnames[[1]] #variable.names(x) 
 col_length <- length(coeff)/4  # number of vars
 
-if(exists("ccl",where=1)){coeff_col_list <<- ccl}  # grabbing existing list
+if(exists("ccl",envir=estout:::estoutstorage)){coeff_col_list <- estout:::estoutstorage$ccl}  # grabbing existing list
 else{coeff_col_list <- list()}
 
 if(is.null(est_column)){   # if no column is provided
@@ -45,6 +47,6 @@ if(est_column == 1){            # create multicolumn-table-list
 else{
         coeff_col_list <- c(coeff_col_list,csl)
 }
-return(ccl <<- coeff_col_list)
+assign("ccl",coeff_col_list,estout:::estoutstorage)
 } # eststo-end
 
